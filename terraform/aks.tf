@@ -31,13 +31,19 @@ resource "azurerm_kubernetes_cluster" "lab" {
   ]
 
   default_node_pool {
-    name                 = "system"
-    node_count           = 1
-    vm_size              = "Standard_D2s_v5"
-    os_disk_size_gb      = 30
-    auto_scaling_enabled = false
-    vnet_subnet_id       = azurerm_subnet.aks_nodes.id
+  name                 = "system"
+  node_count           = 1
+  vm_size              = "Standard_D2s_v5"
+  os_disk_size_gb      = 30
+  auto_scaling_enabled = false
+  vnet_subnet_id       = azurerm_subnet.aks_nodes.id
+
+  upgrade_settings {
+    max_surge                     = "10%"
+    drain_timeout_in_minutes      = 0
+    node_soak_duration_in_minutes = 0
   }
+}
 
   identity {
     type         = "UserAssigned"
