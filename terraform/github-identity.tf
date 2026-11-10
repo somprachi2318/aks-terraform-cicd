@@ -22,6 +22,6 @@ resource "azurerm_federated_identity_credential" "github_main" {
   name                      = "github-main-oidc"
   user_assigned_identity_id = azurerm_user_assigned_identity.github_actions.id
   issuer                    = "https://token.actions.githubusercontent.com"
-  subject                   = "repo:somprachi2318/aks-terraform-cicd:ref:refs/heads/main"
+  subject                   = "repo:somprachi2318@280710171/aks-terraform-cicd@1451607880:ref:refs/heads/main"
   audience                  = ["api://AzureADTokenExchange"]
 }
