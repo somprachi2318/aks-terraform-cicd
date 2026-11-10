@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: app/requirements.txt
+
+      - name: Install application dependencies
+        run: python -m pip install -r app/requirements.txt
+
+      - name: Smoke-test Flask routes
+        working-directory: app
+        run: |
+          python - <<'PY'
+          from app import app
+
+          client = app.test_client()
+          health = client.get("/health")
+          if health.status_code != 200 or health.get_json() != {"status": "healthy"}:
+              raise SystemExit("The /health route did not return the expected healthy response.")
+
+          home = client.get("/")
+          if home.status_code != 200 or home.get_data(as_text=True) != "Welcome to Azure AKS Project":
+              raise SystemExit("The homepage did not return the expected response.")
+
+          print("Flask route smoke checks passed.")
+          PY
+
+      - name: Build Docker image
+        run: docker build --tag banking-app:ci --file app/Dockerfile app
